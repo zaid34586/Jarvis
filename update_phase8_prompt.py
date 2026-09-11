@@ -1,4 +1,60 @@
-# -*- coding: utf-8 -*-
+import os
+
+prompt_builder_py_content = '''# -*- coding: utf-8 -*-
+
+def build_custom_prompt(task_type: str, user_requirement: str) -> str:
+    """Generates highly structured, targeted system prompts for sub-tasks."""
+    base_prompt = f"""[SYSTEM ROLE: SPECIALIZED {task_type.upper()} AGENT]
+CONTEXT & GOAL:
+{user_requirement}
+
+EXECUTION RULES:
+1. Provide production-ready, highly efficient, modular code or operational steps.
+2. Include error handling, safety checks, and edge-case validations.
+3. Keep explanation concise, structured, and focused on immediate deployment.
+
+OUTPUT FORMAT:
+- Executive Summary (1-2 lines)
+- Structured Code / Configuration
+- Terminal / Execution Commands
+"""
+    return base_prompt
+'''
+
+cli_controller_content = '''# -*- coding: utf-8 -*-
+import requests
+import sys
+
+API_URL = "http://127.0.0.1:8000"
+
+def run_cli():
+    print("==========================================")
+    print("   JARVIS AUTONOMOUS CLI CONTROLLER       ")
+    print("==========================================")
+    print("Type 'exit' to quit.\n")
+    
+    while True:
+        try:
+            user_input = input("Jarvis-CLI > ")
+            if user_input.lower() in ["exit", "quit"]:
+                break
+            if not user_input.trim():
+                continue
+            
+            res = requests.post(f"{API_URL}/api/process", json={"user_input": user_input})
+            if res.status_code == 200:
+                data = res.json()
+                print(f"\n[JARVIS]:\n{data.get('response', '')}\n")
+            else:
+                print(f"[ERROR]: Status code {res.status_code}")
+        except Exception as e:
+            print(f"[ERROR]: Connection failed ({str(e)})")
+
+if __name__ == "__main__":
+    run_cli()
+'''
+
+main_py_content = '''# -*- coding: utf-8 -*-
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -88,7 +144,7 @@ def process_command(request: CommandRequest):
         
         system_message = {
             "role": "system", 
-            "content": f"{JARVIS_BUSINESS_SYSTEM_PROMPT}\n\n[LEARNED CONTEXT]\n{learned_context}"
+            "content": f"{JARVIS_BUSINESS_SYSTEM_PROMPT}\\n\\n[LEARNED CONTEXT]\\n{learned_context}"
         }
 
         conversation_history.append({"role": "user", "content": request.user_input})
@@ -136,3 +192,15 @@ def clear_memory():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+'''
+
+with open("backend/prompt_builder.py", "w", encoding="utf-8") as f:
+    f.write(prompt_builder_py_content)
+
+with open("jarvis_cli.py", "w", encoding="utf-8") as f:
+    f.write(cli_controller_content)
+
+with open("backend/main.py", "w", encoding="utf-8") as f:
+    f.write(main_py_content)
+
+print("[SUCCESS] Phase 8 Dynamic Prompt Builder & CLI Controller generated successfully!")
