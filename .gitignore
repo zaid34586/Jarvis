@@ -6,3 +6,4 @@ __pycache__/
 temp_execution.py
 jarvis_memory.json
 .vscode/
+.vercel
