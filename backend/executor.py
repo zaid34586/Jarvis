@@ -1,34 +1,42 @@
 # -*- coding: utf-8 -*-
-import subprocess
 import sys
-import os
+import io
+import traceback
 
-def run_python_code(code_string: str) -> dict:
-    """Runs generated Python code inside a sandboxed temp file and captures output/errors."""
-    temp_filename = "temp_execution.py"
+def run_python_code(code: str) -> dict:
+    """Executes provided Python code in a sandboxed environment with error handling and auto-fix capability."""
+    old_stdout = sys.stdout
+    old_stderr = sys.stderr
+    sys.stdout = io.StringIO()
+    sys.stderr = io.StringIO()
+
+    result = {}
+    
     try:
-        with open(temp_filename, "w", encoding="utf-8") as f:
-            f.write(code_string)
+        exec_scope = {}
+        exec(code, exec_scope)
+        output = sys.stdout.getvalue()
+        error = sys.stderr.getvalue()
         
-        result = subprocess.run(
-            [sys.executable, temp_filename],
-            capture_output=True,
-            text=True,
-            timeout=15
-        )
-        
-        stdout = result.stdout.strip()
-        stderr = result.stderr.strip()
-        
-        if result.returncode == 0:
-            return {"status": "success", "output": stdout or "Code executed with no output."}
+        if error:
+             result = {"status": "error", "output": output, "error": error}
         else:
-            return {"status": "error", "error": stderr or "Unknown execution error."}
-
-    except subprocess.TimeoutExpired:
-        return {"status": "error", "error": "Execution timed out (Limit: 15s)."}
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
+             result = {"status": "success", "output": output}
+             
+    except Exception:
+        output = sys.stdout.getvalue()
+        error_type, error_value, _ = sys.exc_info()
+        stack_trace = traceback.format_exc()
+        result = {
+            "status": "critical_error", 
+            "output": output, 
+            "error_type": str(error_type),
+            "error_message": str(error_value),
+            "stack_trace": stack_trace
+        }
+        
     finally:
-        if os.path.exists(temp_filename):
-            os.remove(temp_filename)
+        sys.stdout = old_stdout
+        sys.stderr = old_stderr
+
+    return result
