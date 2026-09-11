@@ -1,4 +1,52 @@
-# -*- coding: utf-8 -*-
+import os
+
+req_content = """fastapi
+uvicorn
+pydantic
+python-dotenv
+openai
+requests
+beautifulsoup4
+httpx
+"""
+
+web_engine_py_content = '''# -*- coding: utf-8 -*-
+import requests
+from bs4 import BeautifulSoup
+
+def fetch_web_page_text(url: str) -> dict:
+    """Fetch and extract clean text content from any website URL."""
+    try:
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            # Remove scripts and styles
+            for script in soup(["script", "style"]):
+                script.extract()
+            
+            text = soup.get_text(separator=' ')
+            clean_text = ' '.join(text.split())[:3000] # Limit to 3000 chars
+            return {"status": "success", "url": url, "content": clean_text}
+        else:
+            return {"status": "error", "error": f"HTTP Error Status Code: {response.status_code}"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+def mock_web_search(query: str) -> dict:
+    """Simulates real-time search extraction strategy for AI processing."""
+    return {
+        "status": "success",
+        "query": query,
+        "results": [
+            f"Search Query Processed: '{query}'",
+            "Scraped real-time market/technical context ready for Jarvis Processing Engine."
+        ]
+    }
+'''
+
+main_py_content = '''# -*- coding: utf-8 -*-
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -78,7 +126,7 @@ def process_command(request: CommandRequest):
         
         system_message = {
             "role": "system", 
-            "content": f"{JARVIS_BUSINESS_SYSTEM_PROMPT}\n\n[LEARNED CONTEXT]\n{learned_context}"
+            "content": f"{JARVIS_BUSINESS_SYSTEM_PROMPT}\\n\\n[LEARNED CONTEXT]\\n{learned_context}"
         }
 
         conversation_history.append({"role": "user", "content": request.user_input})
@@ -126,3 +174,16 @@ def clear_memory():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+'''
+
+# Save Files
+with open("backend/requirements.txt", "w", encoding="utf-8") as f:
+    f.write(req_content)
+
+with open("backend/web_engine.py", "w", encoding="utf-8") as f:
+    f.write(web_engine_py_content)
+
+with open("backend/main.py", "w", encoding="utf-8") as f:
+    f.write(main_py_content)
+
+print("[SUCCESS] Phase 7 Web Intelligence Engine successfully injected into Backend!")
