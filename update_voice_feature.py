@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import os
+
+app_jsx_voice_content = '''import React, { useState, useEffect } from 'react';
 
 export default function App() {
   const [input, setInput] = useState('');
@@ -203,3 +205,9 @@ export default function App() {
     </div>
   );
 }
+'''
+
+with open("frontend/src/App.jsx", "w", encoding="utf-8") as f:
+    f.write(app_jsx_voice_content)
+
+print("[SUCCESS] Option 3 Voice Mode (Speech-to-Text & Text-to-Speech) injected into React UI!")
