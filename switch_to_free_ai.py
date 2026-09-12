@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+import os
+
+main_py_groq = '''# -*- coding: utf-8 -*-
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -65,7 +67,7 @@ def process_command(request: CommandRequest):
         
         system_message = {
             "role": "system", 
-            "content": f"{JARVIS_SYSTEM_PROMPT}\n\n[LEARNED CONTEXT]\n{learned_context}"
+            "content": f"{JARVIS_SYSTEM_PROMPT}\\n\\n[LEARNED CONTEXT]\\n{learned_context}"
         }
 
         conversation_history.append({"role": "user", "content": request.user_input})
@@ -119,3 +121,9 @@ def web_search(request: SearchRequest):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+'''
+
+with open("backend/main.py", "w", encoding="utf-8") as f:
+    f.write(main_py_groq)
+
+print("[SUCCESS] Backend successfully converted to Free Groq Llama-3 Engine!")
