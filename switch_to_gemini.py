@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+import os
+
+gemini_code = '''# -*- coding: utf-8 -*-
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -59,16 +61,16 @@ def process_command(request: CommandRequest):
 
     try:
         learned_context = learning_engine.get_learned_context()
-        prompt_content = f"{JARVIS_SYSTEM_PROMPT}\n\n[LEARNED CONTEXT]\n{learned_context}\n\n"
+        prompt_content = f"{JARVIS_SYSTEM_PROMPT}\\n\\n[LEARNED CONTEXT]\\n{learned_context}\\n\\n"
         
         conversation_history.append({"role": "user", "content": request.user_input})
         trimmed_history = conversation_history[-6:]
         
         for msg in trimmed_history:
-            prompt_content += f"{msg['role'].upper()}: {msg['content']}\n"
+            prompt_content += f"{msg['role'].upper()}: {msg['content']}\\n"
 
         response = client.models.generate_content(
-            model='gemini-3.6-flash',
+            model='gemini-2.5-flash',
             contents=prompt_content,
         )
 
@@ -111,3 +113,9 @@ def web_search(request: SearchRequest):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+'''
+
+with open("backend/main.py", "w", encoding="utf-8") as f:
+    f.write(gemini_code)
+
+print("[SUCCESS] Switched backend to Gemini!")
