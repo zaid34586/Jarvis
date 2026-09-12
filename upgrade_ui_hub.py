@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import os
+
+hub_code = '''import React, { useState, useEffect } from "react";
 import { Terminal, Cpu, Shield, Activity, Database, FileCode, Mic, Send, RefreshCw } from "lucide-react";
 
 export default function App() {
@@ -31,7 +33,7 @@ export default function App() {
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
 
       if (data.file_modified) {
-        setCodeDiff(`// Modified File: ${data.file_path || "App.jsx"}\n\n${data.code_preview || ""}`);
+        setCodeDiff(`// Modified File: ${data.file_path || "App.jsx"}\\n\\n${data.code_preview || ""}`);
       }
     } catch (err) {
       setMessages((prev) => [...prev, { role: "assistant", content: "[SYSTEM ERROR]: Backend unreachable." }]);
@@ -145,3 +147,9 @@ export default function App() {
     </div>
   );
 }
+'''
+
+with open("frontend/src/App.jsx", "w", encoding="utf-8") as f:
+    f.write(hub_code)
+
+print("[SUCCESS] Frontend upgraded to dual-panel Autonomous Control Hub!")
