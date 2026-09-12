@@ -1,231 +1,215 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("diff");
-  const [inputPrompt, setInputPrompt] = useState("");
-  const [messages, setMessages] = useState([
-    { role: "assistant", content: "Jarvis Autonomous Core online. Systems operational." }
+  const [command, setCommand] = useState('');
+  const [logs, setLogs] = useState([
+    { id: 1, type: 'system', text: 'JARVIS Autonomous Core v4.2 Initialized.' },
+    { id: 2, type: 'system', text: 'Server Health Monitoring Module active.' }
   ]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [codeDiff, setCodeDiff] = useState("// Waiting for autonomous file modifications...");
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSend = async () => {
-    if (!inputPrompt.trim()) return;
-    
-    const userMsg = inputPrompt;
-    setInputPrompt("");
-    setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
-    setIsLoading(true);
+  // Simulated server metrics
+  const [metrics, setMetrics] = useState({
+    cpuUsage: 24,
+    ramUsage: 48,
+    serverTemp: 38,
+    latency: 14,
+    uptime: '99.98%',
+    diskUsage: 62,
+    status: 'OPTIMAL'
+  });
+
+  // Pulse effect simulation for realistic live dashboard
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMetrics(prev => ({
+        ...prev,
+        cpuUsage: Math.floor(20 + Math.random() * 15),
+        ramUsage: Math.floor(45 + Math.random() * 6),
+        serverTemp: Math.floor(37 + Math.random() * 3),
+        latency: Math.floor(12 + Math.random() * 5)
+      }));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleCommandSubmit = async (e) => {
+    e.preventDefault();
+    if (!command.trim()) return;
+
+    const userCmd = command;
+    setCommand('');
+    setLogs(prev => [...prev, { id: Date.now(), type: 'user', text: `> ${userCmd}` }]);
+    setIsProcessing(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/process", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_input: userMsg }),
+      const response = await fetch('http://127.0.0.1:8000/api/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: userCmd })
       });
-      const data = await res.json();
-      
-      const reply = data.response || "[SYSTEM ERROR]: No response generated.";
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-
-      if (data.file_modified) {
-        setCodeDiff(`// Modified File: ${data.file_path || "App.jsx"}\n\n${data.code_preview || ""}`);
-      }
-    } catch (err) {
-      setMessages((prev) => [...prev, { role: "assistant", content: "[SYSTEM ERROR]: Backend unreachable." }]);
+      const data = await response.json();
+      setLogs(prev => [
+        ...prev, 
+        { id: Date.now() + 1, type: 'response', text: data.result || data.message || 'Command executed successfully.' }
+      ]);
+    } catch (error) {
+      setLogs(prev => [
+        ...prev, 
+        { id: Date.now() + 1, type: 'error', text: `Execution failed: ${error.message}` }
+      ]);
     } finally {
-      setIsLoading(false);
+      setIsProcessing(false);
     }
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      height: '100vh',
-      backgroundColor: '#07090e',
-      color: '#e2e8f0',
-      fontFamily: 'monospace',
-      overflow: 'hidden'
-    }}>
-      {/* Left Panel: Chat & Control Console */}
-      <div style={{
-        width: '50%',
-        display: 'flex',
-        flexDirection: 'column',
-        borderRight: '1px solid #1e293b',
-        backgroundColor: '#0a0d14'
-      }}>
-        {/* Header */}
-        <div style={{
-          padding: '16px 24px',
-          borderBottom: '1px solid #1e293b',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          backgroundColor: '#06080d'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: '#10b981', fontWeight: 'bold', fontSize: '14px' }}>&gt;_ JARVIS // AUTONOMOUS_CORE</span>
+    <div style={{ backgroundColor: '#030712', color: '#00f3ff', fontFamily: 'monospace', minHeight: '100vh', padding: '20px', paddingBottom: '90px', boxSizing: 'border-box' }}>
+      
+      {/* Dashboard Header */}
+      <header style={{ borderBottom: '1px solid #00f3ff44', paddingBottom: '15px', marginBottom: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: '24px', letterSpacing: '2px', textTransform: 'uppercase' }}>
+            JARVIS // AUTONOMOUS CORE
+          </h1>
+          <span style={{ fontSize: '12px', opacity: 0.7 }}>SYS_VER: 4.2.0-STABLE | NODE: 127.0.0.1</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', border: '1px solid #00f3ff66', padding: '4px 12px', borderRadius: '4px' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#00f3ff', boxShadow: '0 0 8px #00f3ff' }}></span>
+          CORE ONLINE
+        </div>
+      </header>
+
+      {/* Main Grid */}
+      <main style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', marginBottom: '25px' }}>
+        
+        {/* Server Health Status Widget */}
+        <section style={{ backgroundColor: '#081226', border: '1px solid #00f3ff44', borderRadius: '6px', padding: '20px', boxShadow: '0 0 15px rgba(0,243,255,0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #00f3ff22', paddingBottom: '10px', marginBottom: '15px' }}>
+            <h2 style={{ margin: 0, fontSize: '16px', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '18px' }}>⚡</span> SERVER HEALTH STATUS
+            </h2>
+            <span style={{ fontSize: '11px', backgroundColor: '#00f3ff22', color: '#00f3ff', padding: '2px 8px', borderRadius: '3px', border: '1px solid #00f3ff44' }}>
+              {metrics.status}
+            </span>
           </div>
-          <span style={{
-            fontSize: '11px',
-            color: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.2)',
-            padding: '4px 10px',
-            borderRadius: '12px'
-          }}>
-            SYSTEM ONLINE
-          </span>
-        </div>
 
-        {/* Chat Feed */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px'
-        }}>
-          {messages.map((msg, idx) => (
-            <div key={idx} style={{
-              padding: '12px 16px',
-              borderRadius: '8px',
-              fontSize: '12px',
-              lineHeight: '1.6',
-              border: msg.role === 'user' ? '1px solid #334155' : '1px solid rgba(16, 185, 129, 0.3)',
-              backgroundColor: msg.role === 'user' ? '#0f172a' : '#040d12',
-              color: msg.role === 'user' ? '#f8fafc' : '#34d399',
-              alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '85%'
-            }}>
-              <div style={{ fontSize: '10px', color: '#64748b', marginBottom: '4px' }}>
-                [{msg.role === 'user' ? 'USER' : 'JARVIS_BRAIN'}]
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* CPU Usage Bar */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
+                <span>CPU LOAD</span>
+                <span>{metrics.cpuUsage}%</span>
               </div>
-              <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
+              <div style={{ width: '100%', backgroundColor: '#030712', height: '8px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #00f3ff33' }}>
+                <div style={{ width: `${metrics.cpuUsage}%`, backgroundColor: '#00f3ff', height: '100%', transition: 'width 0.5s ease', boxShadow: '0 0 8px #00f3ff' }}></div>
+              </div>
             </div>
-          ))}
-          {isLoading && (
-            <div style={{ fontSize: '12px', color: '#34d399' }}>
-              &gt; Processing Autonomous Action Loop...
-            </div>
-          )}
-        </div>
 
-        {/* Input Bar */}
-        <div style={{
-          padding: '16px',
-          borderTop: '1px solid #1e293b',
-          backgroundColor: '#06080d',
-          display: 'flex',
-          gap: '8px'
-        }}>
-          <input
-            type="text"
-            value={inputPrompt}
-            onChange={(e) => setInputPrompt(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Type command or instruct self-code modification..."
-            style={{
-              flex: 1,
-              backgroundColor: '#0f172a',
-              border: '1px solid #1e293b',
-              borderRadius: '6px',
-              padding: '10px 14px',
-              color: '#f8fafc',
-              fontSize: '12px',
-              fontFamily: 'monospace',
-              outline: 'none'
+            {/* RAM Usage Bar */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
+                <span>MEMORY ALLOCATION</span>
+                <span>{metrics.ramUsage}%</span>
+              </div>
+              <div style={{ width: '100%', backgroundColor: '#030712', height: '8px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #00f3ff33' }}>
+                <div style={{ width: `${metrics.ramUsage}%`, backgroundColor: '#00f3ff', height: '100%', transition: 'width 0.5s ease', boxShadow: '0 0 8px #00f3ff' }}></div>
+              </div>
+            </div>
+
+            {/* Metrics Quick Stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '5px' }}>
+              <div style={{ backgroundColor: '#030712', padding: '10px', borderRadius: '4px', border: '1px solid #00f3ff22' }}>
+                <div style={{ fontSize: '10px', opacity: 0.6 }}>CORE TEMP</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold', marginTop: '2px' }}>{metrics.serverTemp} °C</div>
+              </div>
+              <div style={{ backgroundColor: '#030712', padding: '10px', borderRadius: '4px', border: '1px solid #00f3ff22' }}>
+                <div style={{ fontSize: '10px', opacity: 0.6 }}>LATENCY</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold', marginTop: '2px' }}>{metrics.latency} ms</div>
+              </div>
+              <div style={{ backgroundColor: '#030712', padding: '10px', borderRadius: '4px', border: '1px solid #00f3ff22' }}>
+                <div style={{ fontSize: '10px', opacity: 0.6 }}>STORAGE</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold', marginTop: '2px' }}>{metrics.diskUsage}%</div>
+              </div>
+              <div style={{ backgroundColor: '#030712', padding: '10px', borderRadius: '4px', border: '1px solid #00f3ff22' }}>
+                <div style={{ fontSize: '10px', opacity: 0.6 }}>UPTIME</div>
+                <div style={{ fontSize: '16px', fontWeight: 'bold', marginTop: '2px' }}>{metrics.uptime}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* System Terminal Log Stream */}
+        <section style={{ backgroundColor: '#081226', border: '1px solid #00f3ff44', borderRadius: '6px', padding: '20px', display: 'flex', flexDirection: 'column', height: '280px' }}>
+          <h2 style={{ margin: 0, fontSize: '16px', letterSpacing: '1px', borderBottom: '1px solid #00f3ff22', paddingBottom: '10px', marginBottom: '10px' }}>
+            SYSTEM LOG STREAM
+          </h2>
+          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px' }}>
+            {logs.map(log => (
+              <div key={log.id} style={{ 
+                color: log.type === 'error' ? '#ff4444' : log.type === 'user' ? '#ffffff' : '#00f3ff',
+                opacity: log.type === 'system' ? 0.8 : 1
+              }}>
+                {log.text}
+              </div>
+            ))}
+            {isProcessing && <div style={{ opacity: 0.5 }}>Processing payload...</div>}
+          </div>
+        </section>
+      </main>
+
+      {/* Mandatory Fixed Command Input Bar */}
+      <div style={{ 
+        position: 'fixed', 
+        bottom: 0, 
+        left: 0, 
+        right: 0, 
+        backgroundColor: '#050c1e', 
+        borderTop: '1px solid #00f3ff66', 
+        padding: '12px 20px', 
+        boxShadow: '0 -5px 25px rgba(0,0,0,0.8)',
+        zIndex: 1000 
+      }}>
+        <form onSubmit={handleCommandSubmit} style={{ display: 'flex', gap: '12px', maxWidth: '1200px', margin: '0 auto', alignItems: 'center' }}>
+          <span style={{ color: '#00f3ff', fontWeight: 'bold', fontSize: '14px' }}>JARVIS&gt;</span>
+          <input 
+            type="text" 
+            value={command} 
+            onChange={(e) => setCommand(e.target.value)} 
+            placeholder="Execute system command or directive..."
+            style={{ 
+              flex: 1, 
+              backgroundColor: '#030712', 
+              color: '#00f3ff', 
+              border: '1px solid #00f3ff44', 
+              borderRadius: '4px', 
+              padding: '10px 14px', 
+              fontFamily: 'monospace', 
+              fontSize: '14px', 
+              outline: 'none' 
             }}
           />
-          <button
-            onClick={handleSend}
-            style={{
-              backgroundColor: '#10b981',
-              color: '#000',
-              fontWeight: 'bold',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '10px 20px',
-              cursor: 'pointer',
-              fontSize: '12px'
-            }}>
-            SEND
+          <button 
+            type="submit" 
+            disabled={isProcessing}
+            style={{ 
+              backgroundColor: '#00f3ff', 
+              color: '#030712', 
+              border: 'none', 
+              borderRadius: '4px', 
+              padding: '10px 20px', 
+              fontFamily: 'monospace', 
+              fontWeight: 'bold', 
+              cursor: isProcessing ? 'not-allowed' : 'pointer',
+              opacity: isProcessing ? 0.6 : 1,
+              letterSpacing: '1px'
+            }}
+          >
+            {isProcessing ? 'BUSY' : 'EXECUTE'}
           </button>
-        </div>
+        </form>
       </div>
 
-      {/* Right Panel: Code Inspector & Database Logs */}
-      <div style={{
-        width: '50%',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: '#05070b'
-      }}>
-        <div style={{ display: 'flex', borderBottom: '1px solid #1e293b', backgroundColor: '#06080d' }}>
-          <button
-            onClick={() => setActiveTab("diff")}
-            style={{
-              padding: '12px 20px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              border: 'none',
-              borderRight: '1px solid #1e293b',
-              backgroundColor: activeTab === 'diff' ? '#0f172a' : 'transparent',
-              color: activeTab === 'diff' ? '#34d399' : '#64748b',
-              cursor: 'pointer'
-            }}>
-            Code Inspector & Diff
-          </button>
-          <button
-            onClick={() => setActiveTab("memory")}
-            style={{
-              padding: '12px 20px',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              border: 'none',
-              borderRight: '1px solid #1e293b',
-              backgroundColor: activeTab === 'memory' ? '#0f172a' : 'transparent',
-              color: activeTab === 'memory' ? '#34d399' : '#64748b',
-              cursor: 'pointer'
-            }}>
-            Supabase Memory DB
-          </button>
-        </div>
-
-        <div style={{ flex: 1, padding: '20px', overflow: 'auto' }}>
-          {activeTab === 'diff' ? (
-            <div style={{
-              height: '100%',
-              borderRadius: '8px',
-              border: '1px solid #1e293b',
-              backgroundColor: '#040d12',
-              padding: '16px',
-              fontSize: '12px',
-              color: '#94a3b8',
-              overflow: 'auto'
-            }}>
-              <pre style={{ margin: 0 }}>{codeDiff}</pre>
-            </div>
-          ) : (
-            <div style={{
-              height: '100%',
-              borderRadius: '8px',
-              border: '1px solid #1e293b',
-              backgroundColor: '#040d12',
-              padding: '16px',
-              fontSize: '12px',
-              color: '#64748b'
-            }}>
-              <p style={{ color: '#34d399', margin: '0 0 10px 0' }}>// Supabase Cloud Memory Synced Table</p>
-              <div style={{ padding: '10px', border: '1px solid #1e293b', borderRadius: '4px', backgroundColor: '#0a0d14' }}>
-                Memory Sync: Active (Supabase PostgreSQL)
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

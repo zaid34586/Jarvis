@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS // ULTIMATE AUTONOMOUS SYSTEM</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="hud-container">
+        <!-- Top Navigation / Header -->
+        <header class="top-bar">
+            <div class="brand">
+                <i class="fa-solid fa-microchip brand-icon"></i>
+                <div class="brand-text">
+                    <span class="title">JARVIS</span>
+                    <span class="subtitle">v4.0.0 HYPER-CORE</span>
+                </div>
+            </div>
+            
+            <div class="header-title">JARVIS // ULTIMATE AUTONOMOUS SYSTEM</div>
+            
+            <div class="system-status-pills">
+                <div class="pill active">
+                    <span class="indicator"></span>
+                    <span class="label">SYSTEM: ON-LINE</span>
+                </div>
+                <div class="pill warning">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span class="label">DEFCON 3</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace Grid -->
+        <main class="workspace-grid">
+            <!-- Left Sidebar: Core Stats & Controls -->
+            <aside class="hud-panel left-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-chart-line"></i> CORE METRICS</h3>
+                    <div class="panel-controls"><span class="dot"></span></div>
+                </div>
+                <div class="panel-body">
+                    <div class="arc-reactor-wrapper">
+                        <div class="arc-reactor">
+                            <div class="core-ring outer-ring"></div>
+                            <div class="core-ring inner-ring"></div>
+                            <div class="center-light"></div>
+                            <div class="reactor-text">
+                                <span class="val" id="reactor-power">98.4%</span>
+                                <span class="lbl">OUTPUT</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metric-box">
+                        <div class="metric-info">
+                            <span>CPU LOAD</span>
+                            <span id="cpu-val">24%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="cpu-bar" style="width: 24%"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-box">
+                        <div class="metric-info">
+                            <span>MEMORY ALLOCATION</span>
+                            <span id="mem-val">6.2 / 16 GB</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill warning" id="mem-bar" style="width: 40%"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-box">
+                        <div class="metric-info">
+                            <span>NEURAL SYNAPSE RATE</span>
+                            <span id="synapse-val">14.2 THz</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill active" id="synapse-bar" style="width: 85%"></div>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <h4>QUICK DIRECTIVES</h4>
+                        <div class="btn-group">
+                            <button class="hud-btn" onclick="triggerAction('DIAGNOSTICS')"><i class="fa-solid fa-stethoscope"></i> DIAG</button>
+                            <button class="hud-btn danger" onclick="triggerAction('PURGE_CACHE')"><i class="fa-solid fa-broom"></i> PURGE</button>
+                            <button class="hud-btn warning" onclick="triggerAction('OVERCLOCK')"><i class="fa-solid fa-bolt"></i> BOOST</button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center Panel: Terminal & Neural Output -->
+            <section class="hud-panel center-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-terminal"></i> AUTONOMOUS EXECUTIVE TERMINAL</h3>
+                    <div class="status-tag">DIRECT EXECUTION ACTIVE</div>
+                </div>
+                <div class="panel-body terminal-body">
+                    <div id="terminal-output" class="terminal-logs">
+                        <div class="log-line system">[SYSTEM INITIALIZED] JARVIS AI Core online and running.</div>
+                        <div class="log-line info">[STATUS] All subsystem modules responding within 2ms threshold.</div>
+                        <div class="log-line success">[AUTONOMY] Direct tool execution enabled: READ_FILE, WRITE_FILE, WEB_SEARCH, EXEC_CMD.</div>
+                    </div>
+                    
+                    <div class="input-container">
+                        <span class="prompt-symbol">&gt;</span>
+                        <input type="text" id="user-input" placeholder="Enter directive or natural language instruction..." onkeydown="handleKeyDown(event)">
+                        <button id="send-btn" class="send-btn" onclick="sendCommand()"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Sidebar: Active Modules & Telemetry -->
+            <aside class="hud-panel right-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-cubes"></i> ACTIVE MODULES</h3>
+                </div>
+                <div class="panel-body">
+                    <ul class="module-list">
+                        <li class="module-item active">
+                            <div class="module-icon"><i class="fa-solid fa-folder-tree"></i></div>
+                            <div class="module-details">
+                                <span class="name">FILE_SYSTEM_I/O</span>
+                                <span class="status">READ / WRITE DIRECT</span>
+                            </div>
+                        </li>
+                        <li class="module-item active">
+                            <div class="module-icon"><i class="fa-solid fa-globe"></i></div>
+                            <div class="module-details">
+                                <span class="name">WEB_RECON_ENGINE</span>
+                                <span class="status">LIVE SEARCH READY</span>
+                            </div>
+                        </li>
+                        <li class="module-item active">
+                            <div class="module-icon"><i class="fa-solid fa-code"></i></div>
+                            <div class="module-details">
+                                <span class="name">CODE_GENERATOR</span>
+                                <span class="status">AST REASONING</span>
+                            </div>
+                        </li>
+                        <li class="module-item standby">
+                            <div class="module-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div class="module-details">
+                                <span class="name">CYBER_DEFENSE</span>
+                                <span class="status">MONITORING</span>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="telemetry-box">
+                        <h4>NETWORK TELEMETRY</h4>
+                        <div class="telemetry-stat">
+                            <span>LATENCY</span>
+                            <span class="highlight">4 ms</span>
+                        </div>
+                        <div class="telemetry-stat">
+                            <span>ENCRYPTION</span>
+                            <span class="highlight">AES-256-GCM</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Bottom Status Bar -->
+        <footer class="bottom-bar">
+            <div class="status-item"><i class="fa-solid fa-wifi"></i> CONNECTED</div>
+            <div class="status-item"><i class="fa-solid fa-database"></i> DB: SYNCED</div>
+            <div class="status-item time" id="clock-display">00:00:00 UTC</div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
