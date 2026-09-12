@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+import os
+
+supabase_engine_code = '''# -*- coding: utf-8 -*-
 import json
 import os
 from typing import List, Dict
@@ -56,5 +58,11 @@ def get_learned_context() -> str:
     recent_memories = memories[-5:]
     context = ""
     for idx, mem in enumerate(recent_memories, 1):
-        context += f"Memory {idx}: User asked '{mem.get('prompt')}' -> Jarvis responded '{mem.get('response')[:150]}...'\n"
+        context += f"Memory {idx}: User asked '{mem.get('prompt')}' -> Jarvis responded '{mem.get('response')[:150]}...'\\n"
     return context
+'''
+
+with open("backend/learning_engine.py", "w", encoding="utf-8") as f:
+    f.write(supabase_engine_code)
+
+print("[SUCCESS] Backend Memory Engine successfully upgraded to Supabase Cloud!")
