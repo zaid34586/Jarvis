@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import os
+
+inline_ui_code = '''import React, { useState, useEffect } from "react";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("diff");
@@ -29,7 +31,7 @@ export default function App() {
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
 
       if (data.file_modified) {
-        setCodeDiff(`// Modified File: ${data.file_path || "App.jsx"}\n\n${data.code_preview || ""}`);
+        setCodeDiff(`// Modified File: ${data.file_path || "App.jsx"}\\n\\n${data.code_preview || ""}`);
       }
     } catch (err) {
       setMessages((prev) => [...prev, { role: "assistant", content: "[SYSTEM ERROR]: Backend unreachable." }]);
@@ -229,3 +231,9 @@ export default function App() {
     </div>
   );
 }
+'''
+
+with open("frontend/src/App.jsx", "w", encoding="utf-8") as f:
+    f.write(inline_ui_code)
+
+print("[SUCCESS] Applied Bulletproof Inline Styled Dark Terminal Dashboard!")
