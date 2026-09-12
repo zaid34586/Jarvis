@@ -1,4 +1,24 @@
-# -*- coding: utf-8 -*-
+import os
+
+orchestrator_code = '''# -*- coding: utf-8 -*-
+import re
+
+def analyze_intent(user_input: str) -> str:
+    \"\"\"Analyzes user input and determines the optimal tool/execution path.\"\"\"
+    text = user_input.lower()
+    
+    # Check for Web Scraping / Fetching Intent
+    if any(k in text for k in ["http://", "https://", "fetch page", "scrape"]):
+        return "WEB_SCRAPE"
+        
+    # Check for Python Execution / Code Sandbox Intent
+    if "def " in text or "import " in text or "print(" in text or "run code" in text:
+        return "EXECUTE_CODE"
+        
+    return "LLM_CHAT"
+'''
+
+main_router_code = '''# -*- coding: utf-8 -*-
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -64,19 +84,19 @@ def process_command(request: CommandRequest):
             if urls:
                 scrape_res = web_engine.fetch_web_page_content(urls[0])
                 if scrape_res.get("status") == "success":
-                    extra_context = f"\n[LIVE WEB CONTENT EXTRACTED FROM {urls[0]}]:\n{scrape_res.get('content')[:1500]}\n"
+                    extra_context = f"\\n[LIVE WEB CONTENT EXTRACTED FROM {urls[0]}]:\\n{scrape_res.get('content')[:1500]}\\n"
 
         # Step 3: Fetch Database Learned Memory
         learned_context = learning_engine.get_learned_context()
 
         # Step 4: Construct Full Context
-        prompt_content = f"{JARVIS_SYSTEM_PROMPT}\n\n[DATABASE MEMORY]\n{learned_context}\n{extra_context}\n"
+        prompt_content = f"{JARVIS_SYSTEM_PROMPT}\\n\\n[DATABASE MEMORY]\\n{learned_context}\\n{extra_context}\\n"
         
         conversation_history.append({"role": "user", "content": request.user_input})
         trimmed_history = conversation_history[-6:]
         
         for msg in trimmed_history:
-            prompt_content += f"{msg['role'].upper()}: {msg['content']}\n"
+            prompt_content += f"{msg['role'].upper()}: {msg['content']}\\n"
 
         # Step 5: AI Generation Call
         response = client.models.generate_content(
@@ -116,3 +136,12 @@ def scrape_url(request: ScrapeRequest):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+'''
+
+with open("backend/orchestrator.py", "w", encoding="utf-8") as f:
+    f.write(orchestrator_code)
+
+with open("backend/main.py", "w", encoding="utf-8") as f:
+    f.write(main_router_code)
+
+print("[SUCCESS] Phase 3: Autonomous Orchestrator and Smart Router active!")
