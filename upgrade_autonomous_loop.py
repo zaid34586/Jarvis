@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+import os
+
+main_code = '''# -*- coding: utf-8 -*-
 import os
 import json
 from fastapi import FastAPI
@@ -53,7 +55,7 @@ def process_command(request: CommandRequest):
         return {"status": "error", "response": "[JARVIS ERROR]: GEMINI_API_KEY is missing."}
 
     learned_context = learning_engine.get_learned_context()
-    prompt = f"{JARVIS_SYSTEM_PROMPT}\n\n[DATABASE MEMORY]\n{learned_context}\n\nUSER TASK: {request.user_input}"
+    prompt = f"{JARVIS_SYSTEM_PROMPT}\\n\\n[DATABASE MEMORY]\\n{learned_context}\\n\\nUSER TASK: {request.user_input}"
 
     try:
         # Loop execution attempt
@@ -80,7 +82,7 @@ def process_command(request: CommandRequest):
                     tool_output = json.dumps(executor.run_python_code(action_data.get("code", "")))
 
                 # Second pass with tool result
-                second_prompt = f"{prompt}\n\n[ACTION EXECUTED]: {action}\n[TOOL OUTPUT]: {tool_output}\nProvide final synthesis:"
+                second_prompt = f"{prompt}\\n\\n[ACTION EXECUTED]: {action}\\n[TOOL OUTPUT]: {tool_output}\\nProvide final synthesis:"
                 final_res = client.models.generate_content(
                     model='gemini-3.6-flash',
                     contents=second_prompt
@@ -100,3 +102,9 @@ def process_command(request: CommandRequest):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+'''
+
+with open("backend/main.py", "w", encoding="utf-8") as f:
+    f.write(main_code)
+
+print("[SUCCESS] Autonomous Tool Loop Integrated into main.py!")
